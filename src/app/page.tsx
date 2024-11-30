@@ -1,9 +1,56 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useState } from "react";
+
+type DataType = {
+  key: string;
+  id: number;
+  content: string;
+  createdAt: string;
+};
 
 export default function Home() {
+  const [dataSource, setDataSource] = useState<DataType[]>([]);
+
+  useEffect(() => {
+    const fetchNotes = async () => {
+      const response = await fetch("/api/notes");
+      const notes = await response.json();
+      setDataSource(notes);
+    };
+    fetchNotes();
+  }, []);
+
+  const handleSaveClick = async () => {
+    const response = await fetch("/api/notes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content: "testtest" }),
+    });
+
+    const notes = await response.json();
+    setDataSource(notes);
+  };
+
+  const handleDeleteClick = async () => {
+    const response = await fetch(`/api/notes`, {
+      method: "DELETE",
+    });
+
+    const notes = await response.json();
+    setDataSource(notes);
+  };
+
+  console.log(dataSource);
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+        <button onClick={() => handleSaveClick()}>submit</button>
+        <button onClick={() => handleDeleteClick()}>delete</button>
         <Image
           className="dark:invert"
           src="/next.svg"
